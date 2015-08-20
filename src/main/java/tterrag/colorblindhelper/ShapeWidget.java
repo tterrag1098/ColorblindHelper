@@ -22,16 +22,14 @@ public enum ShapeWidget implements IWidgetIcon
     SQUARE_OUTLINE(0, 32),
     DIAMOND(16, 32);
     
-    // Texture size is actually 512 but everything is aligned to a 256 grid
     private static final int TEX_SIZE = 64;
+    public static final ResourceLocation TEXTURE = new ResourceLocation("colorblindhelper:textures/shapes.png");
 
     public final int x;
     public final int y;
     public final int width = 16;
     public final int height = 16;
     public final IWidgetIcon overlay = null;
-
-    public static final ResourceLocation TEXTURE = new ResourceLocation("colorblindhelper:textures/shapes.png");
 
     public static final IWidgetMap map = new IWidgetMap.WidgetMapImpl(TEX_SIZE, TEXTURE);
 
