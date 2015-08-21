@@ -97,4 +97,5 @@ curse {
     changelog = System.getenv("CHANGELOG").equals("none") ? getChangelogText() : System.getenv("CHANGELOG")
     releaseType = "${curse_type}".toString()
     additionalArtifact deobfJar, sourceJar
+    relatedProject 'endercore'
 }
