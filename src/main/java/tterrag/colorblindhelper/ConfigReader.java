@@ -5,15 +5,25 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.SneakyThrows;
 import net.minecraft.item.ItemStack;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
 
 import com.enderio.core.common.Handlers.Handler;
 import com.enderio.core.common.Handlers.Handler.HandlerType;
 import com.enderio.core.common.config.JsonConfigReader;
 import com.enderio.core.common.config.JsonConfigReader.ModToken;
 import com.enderio.core.common.event.ConfigFileChangedEvent;
+import com.enderio.core.common.util.EnderFileUtils;
 import com.enderio.core.common.util.ItemUtil;
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.LoaderState;
@@ -31,6 +41,16 @@ public enum ConfigReader
         public String underlay = "0";
         public String overlay = "";
         public String overlayColor = "FFFFFFFF";
+        
+        private JsonData copy()
+        {
+            JsonData ret = new JsonData();
+            ret.stack = stack;
+            ret.underlay = underlay;
+            ret.overlay = overlay;
+            ret.overlayColor = overlayColor;
+            return ret;
+        }
     }
 
     private JsonConfigReader<JsonData> reader;
@@ -44,31 +64,78 @@ public enum ConfigReader
         configDir = event.getModConfigurationDirectory();
         json = new File(configDir, "colorblind.json");
     }
+    
+    public static final JsonData DEFAULT_DATA = new JsonData();
 
+    @SneakyThrows
     public void refresh()
     {
         configs = Lists.newArrayList();
-        
+
         if (reader == null)
         {
             ModToken token = new ModToken(ColorblindHelper.class, ColorblindHelper.MODID + "/config");
             reader = new JsonConfigReader<JsonData>(token, json, JsonData.class);
         }
+
+        reader.refresh();
+        List<JsonData> custom = reader.getElements("custom");
         
+        json.delete();
+        EnderFileUtils.copyFromJar(ColorblindHelper.class, ColorblindHelper.MODID + "/config/colorblind.json", json);
         reader.refresh();
 
-        List<JsonData> all = reader.getElements();
-        for (JsonData data : all)
+        JsonElement object = new JsonParser().parse(FileUtils.readFileToString(json));
+        JsonArray customData = object.getAsJsonObject().getAsJsonArray("custom");
+        
+        for (JsonData data : custom)
         {
-            ItemStack stack = ItemUtil.parseStringIntoItemStack(data.stack);
-            ItemKey key = ItemKey.forStack(stack);
-            
-            int underlayColor = Integer.parseUnsignedInt(data.underlay, 16);
-            int overlayColor = Integer.parseUnsignedInt(data.overlayColor, 16);
-            
-            ItemConfig config = new ItemConfig(new Color(underlayColor, true), data.overlay, new Color(overlayColor, true));
-            configs.add(key);
-            configs.add(config);
+            JsonData toWrite = data.copy();
+            if (toWrite.overlay.equals(DEFAULT_DATA.overlay))
+                toWrite.overlay = null;
+            if (toWrite.overlayColor.equals(DEFAULT_DATA.overlayColor))
+                toWrite.overlayColor = null;
+            if (toWrite.underlay.equals(DEFAULT_DATA.underlay))
+                toWrite.underlay = null;
+            customData.add(new Gson().toJsonTree(toWrite, JsonData.class));
+        }
+        
+        EnderFileUtils.writeToFile(json.getAbsolutePath(), new GsonBuilder().setPrettyPrinting().create().toJson(object));
+        
+        parseAll(reader.getElements("defaults"));
+        parseAll(custom);
+    }
+
+    private void parseAll(Iterable<JsonData> entries)
+    {
+        for (JsonData data : entries)
+        {
+            try
+            {
+                ItemStack stack = ItemUtil.parseStringIntoItemStack(data.stack);
+                ItemKey key = ItemKey.forStack(stack);
+
+                int underlayColor = Integer.parseUnsignedInt(data.underlay, 16);
+                int overlayColor = Integer.parseUnsignedInt(data.overlayColor, 16);
+
+                ItemConfig config = new ItemConfig(new Color(underlayColor, true), data.overlay, new Color(overlayColor, true));
+
+                if (configs.contains(key))
+                {
+                    int idx = configs.indexOf(key);
+                    configs.set(idx, key);
+                    configs.set(idx + 1, config);
+                }
+                else
+                {
+                    configs.add(key);
+                    configs.add(config);
+                }
+            }
+            catch (IllegalArgumentException e)
+            {
+                LogManager.getLogger(ColorblindHelper.MOD_NAME).info(data.stack + " could not be parsed into an ItemStack. Skipping...");
+            }
         }
     }
 
@@ -86,6 +153,7 @@ public enum ConfigReader
     }
 
     private static final ItemConfig DEFAULT = new ItemConfig(new Color(0, true), "", new Color(0, true));
+
     public ItemConfig getConfig(ItemStack stack)
     {
         int idx = configs.indexOf(ItemKey.forStack(stack));
