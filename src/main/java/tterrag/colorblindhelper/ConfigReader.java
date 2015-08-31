@@ -19,6 +19,7 @@ import com.enderio.core.common.event.ConfigFileChangedEvent;
 import com.enderio.core.common.util.EnderFileUtils;
 import com.enderio.core.common.util.ItemUtil;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.UnsignedInts;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -115,8 +116,8 @@ public enum ConfigReader
                 ItemStack stack = ItemUtil.parseStringIntoItemStack(data.stack);
                 ItemKey key = ItemKey.forStack(stack);
 
-                int underlayColor = Integer.parseUnsignedInt(data.underlay, 16);
-                int overlayColor = Integer.parseUnsignedInt(data.overlayColor, 16);
+                int underlayColor = UnsignedInts.parseUnsignedInt(data.underlay, 16);
+                int overlayColor = UnsignedInts.parseUnsignedInt(data.overlayColor, 16);
 
                 ItemConfig config = new ItemConfig(new Color(underlayColor, true), data.overlay, new Color(overlayColor, true));
 
