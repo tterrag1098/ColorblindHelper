@@ -13,19 +13,18 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod(modid = MODID, name = MOD_NAME, version = VERSION, dependencies = "required-after:endercore")
+@Mod(modid = MODID, name = MOD_NAME, version = VERSION, dependencies = "required-after:endercore@[1.10.2-0.4.1.65-beta,)")
 public class ColorblindHelper implements IEnderMod
 {
     public static final String MODID = "colorblindhelper";
     public static final String MOD_NAME = "Colorblind Helper";
     public static final String VERSION = "@VERSION@";
     
-//    TODO for when EnderCore gets the pre version
-//    @SubscribeEvent
-//    public void onItemRenderPre(ItemGUIRenderEvent.Pre event)
-//    {
-//        ItemOverlayHandler.INSTANCE.preRenderStack(Minecraft.getMinecraft().fontRendererObj, event.getStack(), event.getxPosition(), event.getyPosition());
-//    }
+    @SubscribeEvent
+    public void onItemRenderPre(ItemGUIRenderEvent.Pre event)
+    {
+        ItemOverlayHandler.INSTANCE.preRenderStack(Minecraft.getMinecraft().fontRendererObj, event.getStack(), event.getxPosition(), event.getyPosition());
+    }
 
     @SubscribeEvent
     public void onItemRenderPos(ItemGUIRenderEvent.Post event)
