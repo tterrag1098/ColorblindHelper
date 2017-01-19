@@ -4,12 +4,14 @@ buildscript {
         maven { url = "http://files.minecraftforge.net/maven" }
         maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
-    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT' }
+    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT' }
+}
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.7'
+	id 'com.matthewprenger.cursegradle' version '1.0.7'
 }
 
-apply plugin: 'forge'
-apply plugin: 'maven-publish'
-apply plugin: 'curseforge'
+apply plugin: 'net.minecraftforge.gradle.forge'
 
 ext.buildnumber = 0
 if (System.getenv('BUILD_NUMBER') != null)
@@ -25,8 +27,10 @@ if (!project.curse_type.equals('release'))
     version += "_${project.curse_type}"
 
 minecraft {
-    version = "${minecraft_version}-${forge_version}-${minecraft_version}"
+    version = "${minecraft_version}-${forge_version}"
     runDir = 'run'
+    
+    mappings = 'snapshot_20160918'
 
     replace "@VERSION@", project.version
     replaceIn "ColorblindHelper.java"
@@ -37,14 +41,25 @@ configurations {
 }
 
 repositories {
-    maven { url = "http://chickenbones.net/maven/" }
     maven { url = "http://maven.tterrag.com" }
 }
 
 dependencies {
-    compile "com.enderio.core:EnderCore:${minecraft_version}-${endercore_version}:dev"
-    compile "codechicken:NotEnoughItems:${minecraft_version}-${NEI_version}:dev"
+    deobfCompile "com.enderio.core:EnderCore:${minecraft_version}-${endercore_version}"
 }
+
+lombok {
+    version = "1.16.10"
+    sha256 = null // skip
+}
+
+import io.franzbecker.gradle.lombok.task.DelombokTask
+
+task delombok(type: DelombokTask) {
+    args("src/main/java", "-d", "build/sources/delomboked/java")
+}
+
+tasks.eclipse.dependsOn installLombok
 
 processResources {
     inputs.property "version", project.version
@@ -63,18 +78,6 @@ processResources {
     }
 }
 
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    from { configurations.exportedCompile.collect { it.isDirectory() ? it : zipTree(it) } }
-    exclude 'powercrystals/**'
-    classifier = 'dev'
-}
-
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {
         tasks.withType(Javadoc) {
@@ -83,8 +86,9 @@ if (JavaVersion.current().isJava8Compatible()) {
     }
 }
 
-build.dependsOn sourceJar, deobfJar
+build.dependsOn sourceJar
 
+/*
 curse {
     dependsOn 'reobf'
     
@@ -96,6 +100,6 @@ curse {
     projectId = project.curse_projectId
     changelog = System.getenv("CHANGELOG").equals("none") ? getChangelog() : System.getenv("CHANGELOG")
     releaseType = "${curse_type}".toString()
-    additionalArtifact deobfJar, sourceJar
     relatedProject 'endercore'
 }
+*/

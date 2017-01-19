@@ -5,14 +5,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.SneakyThrows;
-import net.minecraft.item.ItemStack;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 
 import com.enderio.core.common.Handlers.Handler;
-import com.enderio.core.common.Handlers.Handler.HandlerType;
 import com.enderio.core.common.config.JsonConfigReader;
 import com.enderio.core.common.config.JsonConfigReader.ModToken;
 import com.enderio.core.common.event.ConfigFileChangedEvent;
@@ -26,12 +22,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.LoaderState;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import lombok.SneakyThrows;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderState;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Handler(HandlerType.FML)
+@Handler()
 public enum ConfigReader
 {
     INSTANCE;
@@ -143,7 +141,7 @@ public enum ConfigReader
     @SubscribeEvent
     public void onConfigFileReload(ConfigFileChangedEvent event)
     {
-        if (event.modID.equals(ColorblindHelper.MODID))
+        if (event.getModID().equals(ColorblindHelper.MODID))
         {
             if (Loader.instance().hasReachedState(LoaderState.POSTINITIALIZATION))
             {
