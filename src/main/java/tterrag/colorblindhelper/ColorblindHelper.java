@@ -23,13 +23,13 @@ public class ColorblindHelper implements IEnderMod
     @SubscribeEvent
     public void onItemRenderPre(ItemGUIRenderEvent.Pre event)
     {
-        ItemOverlayHandler.INSTANCE.preRenderStack(Minecraft.getMinecraft().fontRendererObj, event.getStack(), event.getxPosition(), event.getyPosition());
+        ItemOverlayHandler.INSTANCE.preRenderStack(Minecraft.getMinecraft().fontRenderer, event.getStack(), event.getxPosition(), event.getyPosition());
     }
 
     @SubscribeEvent
     public void onItemRenderPos(ItemGUIRenderEvent.Post event)
     {
-        ItemOverlayHandler.INSTANCE.postRenderStack(Minecraft.getMinecraft().fontRendererObj, event.getStack(), event.getxPosition(), event.getyPosition());
+        ItemOverlayHandler.INSTANCE.postRenderStack(Minecraft.getMinecraft().fontRenderer, event.getStack(), event.getxPosition(), event.getyPosition());
     }
     
     @EventHandler

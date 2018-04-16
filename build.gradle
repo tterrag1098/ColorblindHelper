@@ -4,7 +4,7 @@ buildscript {
         maven { url = "http://files.minecraftforge.net/maven" }
         maven { url = "https://oss.sonatype.org/content/repositories/snapshots/" }
     }
-    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT' }
+    dependencies { classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT' }
 }
 plugins {
     id 'io.franzbecker.gradle-lombok' version '1.7'
@@ -30,7 +30,7 @@ minecraft {
     version = "${minecraft_version}-${forge_version}"
     runDir = 'run'
     
-    mappings = 'snapshot_20160918'
+    mappings = 'snapshot_20171212'
 
     replace "@VERSION@", project.version
     replaceIn "ColorblindHelper.java"
@@ -45,7 +45,7 @@ repositories {
 }
 
 dependencies {
-    deobfCompile "com.enderio.core:EnderCore:${minecraft_version}-${endercore_version}"
+    deobfCompile "com.enderio.core:EnderCore:${endercore_version}"
 }
 
 lombok {
