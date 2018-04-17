@@ -11,7 +11,8 @@ import com.enderio.core.common.vecmath.Vector4f;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
 
@@ -28,7 +29,7 @@ public enum ItemOverlayHandler
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         
-        VertexBuffer buf = Tessellator.getInstance().getBuffer();
+        BufferBuilder buf = Tessellator.getInstance().getBuffer();
         buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         
         buf.pos(x, y, 0).endVertex();

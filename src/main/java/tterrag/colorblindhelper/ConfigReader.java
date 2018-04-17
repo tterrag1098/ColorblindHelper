@@ -13,7 +13,6 @@ import com.enderio.core.common.config.JsonConfigReader;
 import com.enderio.core.common.config.JsonConfigReader.ModToken;
 import com.enderio.core.common.event.ConfigFileChangedEvent;
 import com.enderio.core.common.util.EnderFileUtils;
-import com.enderio.core.common.util.ItemUtil;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.UnsignedInts;
 import com.google.gson.Gson;
