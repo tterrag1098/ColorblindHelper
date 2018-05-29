@@ -154,7 +154,7 @@ public enum ConfigReader
 
     public ItemConfig getConfig(ItemStack stack)
     {
-        if (stack == null) 
+        if (stack.isEmpty()) 
         {
             return DEFAULT;
         }
