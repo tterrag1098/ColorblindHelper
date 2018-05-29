@@ -155,6 +155,10 @@ public enum ConfigReader
 
     public ItemConfig getConfig(ItemStack stack)
     {
+        if (stack == null) 
+        {
+            return DEFAULT;
+        }
         int idx = configs.indexOf(ItemKey.forStack(stack));
         if (idx < 0)
         {
