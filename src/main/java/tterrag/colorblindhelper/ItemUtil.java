@@ -1,6 +1,6 @@
 package tterrag.colorblindhelper;
 
-import net.minecraft.block.Block;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
@@ -16,29 +16,16 @@ public class ItemUtil
 		if ("null".equals(string)) {
 			return null;
 		} else if (OreDictionary.getOres(string).isEmpty()) {
-			ItemStack stack = null;
-			
 			String[] info = string.split(";");
-			Object temp = null;
 			int damage = OreDictionary.WILDCARD_VALUE;
-			temp = Item.REGISTRY.getObject(new ResourceLocation(info[0]));
+			Item item = Item.REGISTRY.getObject(new ResourceLocation(info[0]));
+			if (item == null || item == Items.AIR) {
+			    throw new IllegalArgumentException(string + " is not a valid item ID");
+			}
 			if (info.length > 1) {
 				damage = Integer.parseInt(info[1]);
 			}
-			
-			if (temp instanceof Item) {
-				stack = new ItemStack((Item) temp, 1, damage);
-			} else if (temp instanceof Block) {
-				stack = new ItemStack((Block) temp, 1, damage);
-			} else if (temp instanceof ItemStack) {
-				stack = ((ItemStack) temp).copy();
-				stack.setItemDamage(damage);
-			} else {
-				throw new IllegalArgumentException(string
-						+ " is not a vaild string. Strings should be either an oredict name, or in the format objectname;damage (damage is optional)");
-			}
-			
-			return stack;
+			return new ItemStack((Item) item, 1, damage);			
 		} else if (forceItemStack) {
 			return OreDictionary.getOres(string).get(0).copy();
 		} else {
@@ -80,6 +67,9 @@ public class ItemUtil
 		
 		
 		ItemStack stack = (ItemStack) parseStringIntoRecipeItem(string, true);
+		if (stack.isEmpty()) {
+		    return ItemStack.EMPTY;
+		}
 		stack.setCount(MathHelper.clamp(size, 1, stack.getMaxStackSize()));
 		stack.setTagCompound(tag);
 		return stack;

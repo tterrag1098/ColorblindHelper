@@ -1,28 +1,19 @@
 package tterrag.colorblindhelper;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
-
 import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.ArrayUtils;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
 
 @Getter
 @RequiredArgsConstructor
 public class ItemKey
 {
-    private static final ItemKey EMPTY = new ItemKey(Items.AIR, 0) {
-        
-        @Override
-        public @Nonnull ItemStack toStack() {
-            return ItemStack.EMPTY;
-        }
-    };
-    
     private final @Nonnull Item item;
     private final int damage;
  
@@ -32,7 +23,7 @@ public class ItemKey
     {
         if (stack.isEmpty())
         {
-            return EMPTY;
+            throw new IllegalArgumentException("Cannot create item key for empty stack!");
         }
         return new ItemKey(stack.getItem(), stack.getItemDamage());
     }
@@ -59,22 +50,19 @@ public class ItemKey
         if (getClass() != obj.getClass())
             return false;
         ItemKey other = (ItemKey) obj;
-        if (!other.toStack().isEmpty())
+        if (oreIds == null)
         {
-            if (oreIds == null)
+            oreIds = OreDictionary.getOreIDs(toStack());
+        }
+        if (other.oreIds == null)
+        {
+            other.oreIds = OreDictionary.getOreIDs(other.toStack());
+        }
+        for (int i : other.oreIds)
+        {
+            if (ArrayUtils.contains(oreIds, i))
             {
-                oreIds = OreDictionary.getOreIDs(toStack());
-            }
-            if (other.oreIds == null)
-            {
-                other.oreIds = OreDictionary.getOreIDs(other.toStack());
-            }
-            for (int i : other.oreIds)
-            {
-                if (ArrayUtils.contains(oreIds, i))
-                {
-                    return true;
-                }
+                return true;
             }
         }
         if (damage != other.damage && this.item == other.item)
