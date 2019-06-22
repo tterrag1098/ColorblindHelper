@@ -2,9 +2,12 @@ package tterrag.colorblindhelper;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
+
+import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -12,21 +15,29 @@ import org.apache.commons.lang3.ArrayUtils;
 @RequiredArgsConstructor
 public class ItemKey
 {
-    private final Item item;
+    private static final ItemKey EMPTY = new ItemKey(Items.AIR, 0) {
+        
+        @Override
+        public @Nonnull ItemStack toStack() {
+            return ItemStack.EMPTY;
+        }
+    };
+    
+    private final @Nonnull Item item;
     private final int damage;
  
     private transient int[] oreIds;
 
     public static ItemKey forStack(ItemStack stack)
     {
-        if (stack == null || stack.getItem() == null)
+        if (stack.isEmpty())
         {
-            return new ItemKey(null, 0);
+            return EMPTY;
         }
         return new ItemKey(stack.getItem(), stack.getItemDamage());
     }
     
-    public ItemStack toStack()
+    public @Nonnull ItemStack toStack()
     {
         return new ItemStack(item, 1, damage);
     }
@@ -48,7 +59,7 @@ public class ItemKey
         if (getClass() != obj.getClass())
             return false;
         ItemKey other = (ItemKey) obj;
-        if (other.item != null && item != null)
+        if (!other.toStack().isEmpty())
         {
             if (oreIds == null)
             {
@@ -68,11 +79,6 @@ public class ItemKey
         }
         if (damage != other.damage && this.item == other.item)
             return this.damage == OreDictionary.WILDCARD_VALUE || other.damage == OreDictionary.WILDCARD_VALUE;
-        if (item == null)
-        {
-            if (other.item != null)
-                return false;
-        }
         else if (!item.equals(other.item))
             return false;
         return true;
