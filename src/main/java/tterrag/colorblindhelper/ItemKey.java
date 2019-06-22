@@ -4,14 +4,16 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 @Getter
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemKey
 {
     private final @Nonnull Item item;
@@ -21,14 +23,14 @@ public class ItemKey
 
     public static ItemKey forStack(ItemStack stack)
     {
-        if (stack.isEmpty())
+        if (stack.isEmpty() || stack.getItem() == null || stack.getItem() == Items.AIR)
         {
-            throw new IllegalArgumentException("Cannot create item key for empty stack!");
+            throw new IllegalArgumentException("Cannot create item key for empty stack: " + stack);
         }
         return new ItemKey(stack.getItem(), stack.getItemDamage());
     }
     
-    public @Nonnull ItemStack toStack()
+    private @Nonnull ItemStack toStack()
     {
         return new ItemStack(item, 1, damage);
     }
